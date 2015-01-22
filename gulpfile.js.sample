@@ -1,0 +1,4 @@
+global['gulp'] = require('gulp');
+var $config = require('gulpsi');
+
+// adjust your config here

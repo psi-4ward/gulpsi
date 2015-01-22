@@ -1,0 +1,12 @@
+node_modules
+.DS_STORE
+*.swo
+*.swp
+*.swn
+*.swm
+*~
+.idea
+.git
+.gitignore
+.tmp
+.editorconfig
