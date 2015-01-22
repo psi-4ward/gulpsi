@@ -38,7 +38,7 @@ npm install psi-4ward/gulpsi
 ## Configuration
 
 ### Module's `gulpsi.json`
-```json
+```javascript
 {
 
   // define dependencies
