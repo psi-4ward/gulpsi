@@ -1,6 +1,6 @@
 var runSequence = require('run-sequence').use(gulp);
 var glob = require('glob');
-var gutil = require('../gulp/node_modules/gulp-util/index.js');
+var gutil = require('gulp/node_modules/gulp-util/index.js');
 var _ = require('lodash');
 var argv = require('./lib/argv');
 var path = require('path');
