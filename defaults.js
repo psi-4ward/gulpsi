@@ -10,7 +10,8 @@ var defaults = module.exports = {
 
   // must NOT include a gulpsi.json
   localPackages: [
-    'modules/*',
+    'packages/*',
+    'modules/*'
   ],
 
   // must include a gulpsi.json
@@ -34,6 +35,7 @@ var defaults = module.exports = {
   assetsDest: '', // /assets
 
   pathNormalization: [
+    [/^packages\//, ''],
     [/^(node_)?modules\//, ''],
     [/\/angular(?![^/])/, ''],
     [/^bower_components\//, '']
