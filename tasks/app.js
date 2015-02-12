@@ -37,6 +37,8 @@ gulp.task('app', function() {
 
   s = s.pipe(sourcemaps.init());
 
+  s = s.pipe(concat($config.appName + '.js'));
+
   var ngan = ngAnnotate();
   ngan.on('error', function(e) {
     gutil.log(
@@ -46,8 +48,6 @@ gulp.task('app', function() {
     );
   });
   s = s.pipe(ngan);
-
-  s = s.pipe(concat($config.appName + '.js'));
 
   // minify build
   if($config.minify) {
