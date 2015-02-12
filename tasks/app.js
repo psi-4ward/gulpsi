@@ -37,8 +37,17 @@ gulp.task('app', function() {
 
   s = s.pipe(sourcemaps.init());
 
+  var ngan = ngAnnotate();
+  ngan.on('error', function(e) {
+    gutil.log(
+      gutil.colors.red('Error')
+      + "    '" + gutil.colors.cyan('app') + "' "
+      + gutil.colors.red(e.toString().replace(/\r?\n/g, ' '))
+    );
+  });
+  s = s.pipe(ngan);
+
   s = s.pipe(concat($config.appName + '.js'));
-  s = s.pipe(ngAnnotate());
 
   // minify build
   if($config.minify) {
