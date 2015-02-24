@@ -8,7 +8,7 @@ gulp.task('processIndexHtml', function(cb) {
   // find index.html in config
   var mod = _.find($packages, {indexHtml: true});
   if(!mod) return cb('Could not find any module with index.html');
-  var file = $config.basePath + mod.folder + '/angular/index.html';
+  var file = $config.basePath + mod.folder + '/index.html';
 
   /* Watchers for index.html rebuild */
   if(!watcherSetupDone) {
