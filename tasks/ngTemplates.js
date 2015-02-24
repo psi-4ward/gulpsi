@@ -4,17 +4,19 @@ var sourcemaps = require('gulp-sourcemaps');
 var templateCache = require('gulp-angular-templatecache');
 var glob = require('glob');
 var async = require('async');
+var minmatch = require('glob/node_modules/minimatch');
 
 var watcherSetupDone = false;
-var indexHtml = false;
 
 function getSources() {
+  if($config.taskHooks.ngTemplates && $config.taskHooks.ngTemplates.getSources) return $config.taskHooks.ngTemplates.getSources();
+
   var sources = [];
   // create globbing pattern for each module
   $packages.forEach(function(cfg) {
     sources.push($config.basePath + cfg.folder + $config.subfolder.angular + '/**/*.html');
     // exclude the index.html
-    if(cfg.indexHtml) indexHtml = $config.basePath + cfg.folder + $config.subfolder.angular + '/index.html';
+    if(cfg.indexHtml) sources.push('!' + $config.basePath + cfg.folder + $config.subfolder.angular + '/index.html');
   });
   return sources;
 }
@@ -38,18 +40,34 @@ gulp.task('ngTemplates', function(cb) {
 
   async.map(
     getSources(),
-    function(patter, cb) {
+    function(pattern, cb) {
+      if(pattern[0] === '!') return cb(null, pattern);
       // resolve globbing to files
-      glob(patter, {nodir: true}, cb);
+      glob(pattern, {nodir: true}, cb);
     },
     function(err, files) {
       if(err) return cb(err);
 
-      // strip node_modules/sails4angular-module-*/angular/*.html
-      // which is overwritten in modules/sails4angular-module-*/angular/*.html
-      // and strip index.html entrypoint
+      var negative = [];
+
       files = _(files)
         .flatten()
+        // strip negative-patterns
+        .filter(function(file) {
+          if(file[0] === '!') {
+            negative.push(file.substr(1));
+            return false;
+          }
+          return true;
+        }).value();
+
+      files = _(files)
+        // strip files matching a negative-pattern
+        .filter(function(file) {
+          return !_.some(negative, function(negativePattern) {
+            return minmatch(file, negativePattern);
+          });
+        })
         .unique(function(file) {
           file = file.substr($config.basePath.length);
           $config.pathNormalization.forEach(function(replace) {
@@ -57,14 +75,17 @@ gulp.task('ngTemplates', function(cb) {
           });
           return file;
         })
-        .filter(function(file) {
-          return file !== indexHtml;
-        })
         .value();
 
       // run the ngTemplates pipe
       var s = gulp.src(files, {base: $config.basePath});
       s = s.pipe(sourcemaps.init());
+
+      // include the pipe HOOK
+      if($config.taskHooks.ngTemplates && $config.taskHooks.ngTemplates.pipe) {
+        s = $config.taskHooks.ngTemplates.pipe(s);
+      }
+
       if($config.minify) {
         s = s.pipe(htmlmin({collapseWhitespace: true}));
       }

@@ -8,7 +8,7 @@ var defaults = module.exports = {
   appName: 'app',
   version: '0.0.0',
 
-  // must NOT include a gulpsi.json
+  // should bt must not include a gulpsi.json
   localPackages: [
     'packages/*',
     'modules/*'
@@ -38,11 +38,12 @@ var defaults = module.exports = {
     [/^packages\//, ''],
     [/^(node_)?modules\//, ''],
     [/\/angular(?![^/])/, ''],
+    [/^angular(?![^/])/, ''],
     [/^bower_components\//, '']
   ],
 
   /* folder for local tasks */
-  // localTasks: 'localTasks',
+  localTasks: false,
 
   /* callback when everything is loaded */
   // afterLoad: function() {},
@@ -56,7 +57,37 @@ var defaults = module.exports = {
    * to workaround bugs in gulp.watch
    * (gaze dont emit change events for new/empty files)
    */
-  watcherRebuildInterval: 3000
+  watcherRebuildInterval: 12000,
+
+  commanderOpts: [
+    ['-T, --tasks', 'Show gulp tasks'],
+    ['-m, --minify', 'Run js/css minifcation', false],
+    ['-V --verbose', 'Verbose output', false],
+    ['--target <dir>', 'Use this directory for build files']
+  ],
+  commanderHelp: [
+    '  Common tasks:',
+    ' ',
+    '    build            Build the app',
+    '    bower            Generate the bower.json',
+    '    dev              Build, start watchers and livereload',
+    '    serve            Start the builtin webserver',
+    '    list-packages    List all detected packages',
+  ],
+
+  taskHooks: {
+/*
+    ngTemplates: {
+      getSources: function() {
+        // return array with globbing patterns
+      },
+      pipe: function(stream) {
+        // pipe your stream around
+        return stream;
+      }
+    }
+*/
+  }
 };
 
 // try to fetch appName and version from package.json

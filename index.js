@@ -2,12 +2,10 @@ var runSequence = require('run-sequence').use(gulp);
 var glob = require('glob');
 var gutil = require('gulp/node_modules/gulp-util/index.js');
 var _ = require('lodash');
-var argv = require('./lib/argv');
 var path = require('path');
+var commander = require('commander');
 
-var $config = {
-  argv: argv.argv
-};
+var $config = require('./defaults.js');
 
 global['runSequence'] = runSequence;
 global['gutil'] = gutil;
@@ -15,10 +13,23 @@ global['_'] = _;
 global['$config'] = $config;
 global['$packages'] = {};
 
+commander
+  .usage('task [task task ...] [options]')
+  .on('--help', function() {
+    console.log($config.commanderHelp.join("\n"));
+  });
+
 process.nextTick(function() {
 
   // process config
-  _.defaults($config, require('./defaults.js'));
+  $config.commanderOpts.forEach(function(opt) {
+    commander.option.apply(commander, opt);
+  });
+  $config.help = commander.help.bind(commander);
+  $config.argv = commander.parse(process.argv);
+
+  if(_.isFunction($config.beforeLoad)) $config.beforeLoad();
+
   if(!$config._watchFuncs) $config._watchFuncs = [];
   if($config.argv.minify) $config.minify = true;
   if($config.argv.target) $config.dist = $config.argv.target;
@@ -36,11 +47,10 @@ process.nextTick(function() {
   }
 
   if(_.isFunction($config.afterLoad)) $config.afterLoad();
-
 });
 
 gulp.task('default', function() {
-  argv.help();
+  $config.help();
 });
 
 gulp.task('build', function(cb) {

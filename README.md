@@ -101,6 +101,80 @@ You have some global variables to make the life easier:
 * `$config`: the configuration
 * `$packages`: all module configurations
 
+#### `gulpfile.js` example
+```javascript
+global['gulp'] = require('gulp');
+var $config = require('gulpsi');
+
+// define particular apps
+var common = ['angular/base', 'angular/theme', 'angular/psi-notify'];
+var apps = {
+  admin: ['angular/angular-psi-csv', 'angular/admin'],
+  editor: ['angular/editor', 'angular/chat'],
+  visitor: ['angular/visitor', 'angular/visitor'],
+};
+
+// add "--app" cli argument support
+$config.commanderOpts.push(['--app <app>', 'Build a particular app']);
+
+// packages containing only angular files, no subfolder necessary 
+$config.subfolder.angular = '';
+
+// the beforeLoad Hook is triggered after cli-argument parse but before config parsing 
+$config.beforeLoad = function() {
+  if(['clean', 'bower', 'jshint', 'serve'].indexOf($config.argv.args[0]) > -1) {
+    // use every package for this common tasks
+    $config.localPackages = ['angular/*'];
+  } else {
+    // some --app argument validation
+    if(!$config.argv.app) {
+      gutil.log(gutil.colors.red('Error') + ': --app argument missing');
+      $config.help(); process.exit(1);
+    } else if (Object.keys(apps).indexOf($config.argv.app) === -1) {
+      gutil.log(gutil.colors.red('Error') + ': invalid app name! Use one of: ' + Object.keys(apps).join(', '));
+      $config.help(); process.exit(1);
+    }
+
+    // use only defined package directories
+    $config.localPackages = common.concat(apps[$config.argv.app]);
+
+    // build to app subfolder
+    $config.dest = 'public/' + $config.argv.app;
+  }
+};
+
+// Add haml support to ngTemplates using the getSources and pipe Hooks 
+var haml = require('gulp-haml');
+$config.taskHooks.ngTemplates = {
+  getSources: function() {
+    var sources = [];
+    // create globbing pattern for each module
+    $packages.forEach(function(cfg) {
+      sources.push($config.basePath + cfg.folder + $config.subfolder.angular + '/**/*.html');
+      sources.push($config.basePath + cfg.folder + $config.subfolder.angular + '/**/*.haml');
+      // exclude the index.html using a negative-globbing pattern
+      if(cfg.indexHtml) sources.push('!' + $config.basePath + cfg.folder + $config.subfolder.angular + '/index.html');
+    });
+    return sources;
+  },
+  pipe: function(stream) {
+    var h = haml({compiler: 'creationix'});
+    h.on('error', function(e) {
+      gutil.log(
+        gutil.colors.red('Error')
+        + "    '" + gutil.colors.cyan('haml') + "' "
+        + gutil.colors.red(e.toString())
+      );
+    });
+    return stream.pipe(h);
+  }
+};
+
+// Deploy Task
+gulp.task('deploy', function() {
+ // .... 
+});
+```
+
 ## TODO:
-* Provide a way to build different angular-apps by explicitly defining the included modules 
 * Create a task to inject config into app (like api-url for dev-systems)
