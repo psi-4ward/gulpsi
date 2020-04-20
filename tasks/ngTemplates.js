@@ -4,7 +4,12 @@ var sourcemaps = require('gulp-sourcemaps');
 var templateCache = require('gulp-angular-templatecache');
 var glob = require('glob');
 var async = require('async');
-var minmatch = require('glob/node_modules/minimatch');
+var minmatch;
+try {
+  minimatch = require('minimatch'); 
+} catch (e) {
+  minimatch = require('glob/node_modules/minimatch');
+}
 
 var watcherSetupDone = false;
 
