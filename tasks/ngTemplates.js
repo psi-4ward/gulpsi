@@ -6,9 +6,9 @@ var glob = require('glob');
 var async = require('async');
 var minmatch;
 try {
-  minimatch = require('minimatch'); 
+  minmatch = require('minimatch');
 } catch (e) {
-  minimatch = require('glob/node_modules/minimatch');
+  minmatch = require('glob/node_modules/minimatch');
 }
 
 var watcherSetupDone = false;
