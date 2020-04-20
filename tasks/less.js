@@ -57,7 +57,7 @@ gulp.task('less', function(cb) {
   // init sourcemaps for minify builds
   s.pipe(sourcemaps.init());
 
-  var lessCompiler = less();
+  var lessCompiler = less({javascriptEnabled: true});
   lessCompiler.on('error', cb);
   s = s.pipe(lessCompiler);
   // dont run a gulp.dest() here, it sets a new base path attrib
