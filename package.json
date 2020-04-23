@@ -42,7 +42,7 @@
     "gulp-uglify": "^1.1.0",
     "jshint-stylish": "^1.0.0",
     "lodash": "^3.3.0",
-    "open": "0.0.5",
+    "open": "6.4.0",
     "run-sequence": "^1.0.2"
   },
   "devDependencies": {},
